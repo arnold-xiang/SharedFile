@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hdevelop file_version="1.1" halcon_version="12.0">
+<procedure name="main">
+<interface/>
+<body>
+<l>read_image (Image1, 'C:/Users/arnold/Desktop/Image.Tmp/NG1.jpg')</l>
+<l>*rotate_image (ImageRotate, Image1,  180, 'constant')</l>
+<l>*read_image (Image1, 'C:/Users/Arnold/Desktop/Image.Tmp/00730.jpg')</l>
+<l>dev_close_window ()</l>
+<l>*read_image (Image1, 'E:/Images/100/4.jpg')</l>
+<l>get_image_size (Image1, Width, Height)</l>
+<l>dev_open_window_fit_image (Image1, 0, 0, -1, -1, WindowHandle)</l>
+<l>dev_display (Image1)</l>
+<l>rgb1_to_gray (Image1, GrayImage1)</l>
+<l>scale_image (GrayImage1, ImageScaled1, 3, 0)</l>
+<l>gen_rectangle1 (Rectangle1, 0, 0, Height, Width)</l>
+<l>min_max_gray (Rectangle1, ImageScaled1, 0, Min, Max, Range)</l>
+<l>threshold (ImageScaled1, Regions, Min+0.7*Range, Max)</l>
+<l>connection (Regions, ConnectedRegions1)</l>
+<l>select_shape (ConnectedRegions1, SelectedRegions, 'area', 'and', 500, 500000)</l>
+<l>select_shape (SelectedRegions, SelectedRegions1, 'circularity', 'and', 0.06376, 0.5)</l>
+<l>union1 (SelectedRegions1, RegionUnion1)</l>
+<l>smallest_rectangle1 (RegionUnion1, Row11, Column11, Row2, Column2)</l>
+<l>rowper:=(Row2-Row11)/11.0</l>
+<l>Columnper:=(Row2-Row11)/11.0</l>
+<l>gen_rectangle1 (Rectangle, Row11, Column11, Row11+rowper, Column11+Columnper)</l>
+<l>gen_rectangle1 (Rectangle2, Row11, Column11+10*rowper, Row11+rowper, Column2)</l>
+<l>reduce_domain (ImageScaled1, Rectangle, ImageReduced)</l>
+<l>reduce_domain (ImageScaled1, Rectangle2, ImageReduced1)</l>
+<l>threshold (ImageReduced, Regions1, Min+0.7*Range, Max)</l>
+<l>smallest_circle (Regions1, Row3, Column3, Radius2)</l>
+<l>threshold (ImageReduced1, Regions2, Min+0.7*Range, Max)</l>
+<l>smallest_circle (Regions2, Row4, Column4, Radius3)</l>
+<l>index:=[]</l>
+<l>tuple_gen_const (100, 'null', Data)</l>
+<l>create_data_code_2d_model('Data Matrix ECC 200', 'default_parameters', 'enhanced_recognition', DataCodeHandle)</l>
+<l>row:=Row3</l>
+<l>column:=Column3</l>
+<l>rowy:=(Column4-Column3)/9</l>
+<l>columnx:=(Column4-Column3)/9</l>
+<l>   for IndexY := 0 to 9 by 1</l>
+<l>      for IndexX := 0 to 9 by 1</l>
+<l>        gen_circle (Circle, row+rowy*IndexY, column+columnx*IndexX, 110)</l>
+<l>        reduce_domain (Image1, Circle, ImageReduced)</l>
+<l>        find_data_code_2d(ImageReduced, SymbolXLDs1, DataCodeHandle, [], [], ResultHandles, DecodedDataStrings1)</l>
+<l>        tuple_length (DecodedDataStrings1, Length1)</l>
+<l>        if (Length1=1)</l>
+<l>            Data[10*IndexY+IndexX]:=DecodedDataStrings1</l>
+<l>        endif</l>
+<l>        tuple_concat (index, DecodedDataStrings1, index)</l>
+<l>        tuple_length (index, Length)</l>
+<l>        set_tposition (WindowHandle, row-100 + rowy*IndexY,column+10 + columnx*IndexX)</l>
+<l>        write_string (WindowHandle,(IndexX + (IndexY * 10)) + 1)</l>
+<l>    endfor</l>
+<l>endfor</l>
+<l>set_tposition (WindowHandle, 12,12)</l>
+<l>write_string (WindowHandle,'欢迎使用，请开始识别')</l>
+<c></c>
+</body>
+<docu id="main">
+<parameters/>
+</docu>
+</procedure>
+</hdevelop>
